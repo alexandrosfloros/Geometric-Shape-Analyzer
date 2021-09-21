@@ -110,17 +110,18 @@ def get_shapes(vectors):
 def add_shape(shape, shapes):
     if isinstance(shape, Quadrilateral):
         for s in shapes:
-            if {(s.point1[0], s.point1[1]), (s.point2[0], s.point2[1]), (s.point3[0], s.point3[1]), (s.point4[0], s.point4[1])} == {(shape.point1[0], shape.point1[1]), (shape.point2[0], shape.point2[1]), (shape.point3[0], shape.point3[1]), (shape.point4[0], shape.point4[1])}:
+            if {(s.point1[0], s.point1[1]), (s.point2[0], s.point2[1]), (s.point3[0], s.point3[1]), (s.point4[0], s.point4[1])}\
+                == {(shape.point1[0], shape.point1[1]), (shape.point2[0], shape.point2[1]), (shape.point3[0], shape.point3[1]), (shape.point4[0], shape.point4[1])}:
                 return
     elif isinstance(shape, Triangle):
         for s in shapes:
-            if {(s.point1[0], s.point1[1]), (s.point2[0], s.point2[1]), (s.point3[0], s.point3[1])} == {(shape.point1[0], shape.point1[1]), (shape.point2[0], shape.point2[1]), (shape.point3[0], shape.point3[1])}:
+            if {(s.point1[0], s.point1[1]), (s.point2[0], s.point2[1]), (s.point3[0], s.point3[1])}\
+                == {(shape.point1[0], shape.point1[1]), (shape.point2[0], shape.point2[1]), (shape.point3[0], shape.point3[1])}:
                 return
     shapes.append(shape)
 
-def display():
-    point_list = [np.array([0, 0]), np.array([2, 0]), np.array([4, 0]), np.array([0, 2]), np.array([2, 2])]
-    vector_list = get_vectors(point_list)
+def calculate(points):
+    vector_list = get_vectors(points)
     shape_list = get_shapes(vector_list)
 
     print("\n------Results------\n\nVectors:")
@@ -154,5 +155,3 @@ def display():
     print("\nRight Triangles:")
     for s in shape_list[6]:
         print(s.point1, s.point2, s.point3)
-
-display()

@@ -9,16 +9,13 @@ class UI(QMainWindow):
         self.setWindowTitle("Shape Analysis")
         self.setGeometry(0, 0, 600, 400)
 
-        self.central_widget = QWidget(self)
-        self.central_layout = QVBoxLayout(self.central_widget)
+        self.main_widget = QWidget(self)
+        self.main_layout = QVBoxLayout(self.main_widget)
 
-        self.setCentralWidget(self.central_widget)
-        self.central_widget.setLayout(self.central_layout)
+        self.setCentralWidget(self.main_widget)
+        self.main_widget.setLayout(self.main_layout)
 
-        self.main_frame = QFrame(self.central_widget)
-        self.main_layout = QVBoxLayout(self.main_frame)
-
-        self.input_frame = QFrame(self.main_frame)
+        self.input_frame = QFrame(self.main_widget)
         self.input_layout = QGridLayout(self.input_frame)
 
         self.x_spinbox = QSpinBox(self.input_frame)
@@ -65,17 +62,24 @@ class UI(QMainWindow):
         self.input_layout.addWidget(self.random_frame, 1, 3, 1, 1)
         self.main_layout.addWidget(self.input_frame)
 
-        self.plot_frame = QFrame(self.main_frame)
+        self.plot_frame = QFrame(self.main_widget)
         self.plot_layout = QHBoxLayout(self.plot_frame)
 
         self.plot_table = QTableWidget(self.plot_frame)
         self.plot_table.setColumnCount(2)
         self.plot_table.horizontalHeader().setStretchLastSection(True)
         self.plot_table.setHorizontalHeaderLabels(["X","Y"])
-        self.plot_layout.addWidget(self.plot_table)
+        self.plot_table_delegate = ReadOnlyDelegate(self.plot_table)
+        self.plot_table.setItemDelegateForColumn(0, self.plot_table_delegate)
+        self.plot_table.setItemDelegateForColumn(1, self.plot_table_delegate)
 
+        self.plot_tree = QTreeWidget(self.plot_frame)
+        self.plot_tree.setColumnCount(1)
+        self.plot_tree.setHeaderLabel("Shapes")
+
+        self.plot_layout.addWidget(self.plot_table)
+        self.plot_layout.addWidget(self.plot_tree)
         self.main_layout.addWidget(self.plot_frame)
-        self.central_layout.addWidget(self.main_frame)
     
     def get_point(self):
         point = np.array([int(self.x_spinbox.text()[3:]), int(self.y_spinbox.text()[3:])])
@@ -107,7 +111,7 @@ class UI(QMainWindow):
     
     def clear_points(self):
         point_list.clear()
-        self.update_plot()
+        self.update_points()
 
     def random_point(self):
         print("random point")
@@ -130,6 +134,7 @@ class UI(QMainWindow):
     
     def update_points(self):
         self.update_table()
+        calculate(point_list)
         self.update_plot()
 
     def update_table(self):
@@ -138,13 +143,13 @@ class UI(QMainWindow):
         for n, p in enumerate(point_list):
             self.plot_table.setItem(n, 0, QTableWidgetItem(str(p[0])))
             self.plot_table.setItem(n, 1, QTableWidgetItem(str(p[1])))
-    
+
     def update_plot(self):
         if not plt.fignum_exists(1):
             self.create_plot()
         plt.cla()
         self.set_axes()
-        print(point_list)
+
         for p in point_list:
             axes.plot(p[0], p[1], marker= "o", markersize = 3, color = "blue")
         
@@ -160,3 +165,7 @@ class UI(QMainWindow):
                 self.add_point(point)
         except:
             pass
+
+class ReadOnlyDelegate(QStyledItemDelegate):
+    def createEditor(self, parent, option, index):
+        return
