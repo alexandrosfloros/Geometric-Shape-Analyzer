@@ -1,6 +1,16 @@
 import numpy as np
 point_list = []
 
+class Shapes:
+    def __init__(self, parallelograms, rectangles, rhombi, squares, isosceles_trapezia, isosceles_triangles, right_triangles):
+        self.parallelograms = parallelograms
+        self.rectangles = rectangles
+        self.rhombi = rhombi
+        self.squares = squares
+        self.isosceles_trapezia = isosceles_trapezia
+        self.isosceles_triangles = isosceles_triangles
+        self.right_triangles = right_triangles
+
 class Quadrilateral:
     def __init__(self, point1, point2, point3, point4):
         self.point1 = point1
@@ -105,7 +115,8 @@ def get_shapes(vectors):
                 if np.linalg.det([vector1, vector2]) == 0 and np.linalg.norm(vector4) == np.linalg.norm(vector5):
                     add_shape(quadrilateral, isosceles_trapezium_list)
     square_list = list(set(rectangle_list) & set(rhombus_list))
-    return parallelogram_list, rectangle_list, rhombus_list, square_list, isosceles_trapezium_list, isosceles_triangle_list, right_triangle_list
+    return Shapes(parallelogram_list, rectangle_list, rhombus_list, square_list,\
+        isosceles_trapezium_list, isosceles_triangle_list, right_triangle_list)
     
 def add_shape(shape, shapes):
     if isinstance(shape, Quadrilateral):
@@ -113,7 +124,7 @@ def add_shape(shape, shapes):
             if {(s.point1[0], s.point1[1]), (s.point2[0], s.point2[1]), (s.point3[0], s.point3[1]), (s.point4[0], s.point4[1])}\
                 == {(shape.point1[0], shape.point1[1]), (shape.point2[0], shape.point2[1]), (shape.point3[0], shape.point3[1]), (shape.point4[0], shape.point4[1])}:
                 return
-    elif isinstance(shape, Triangle):
+    else:
         for s in shapes:
             if {(s.point1[0], s.point1[1]), (s.point2[0], s.point2[1]), (s.point3[0], s.point3[1])}\
                 == {(shape.point1[0], shape.point1[1]), (shape.point2[0], shape.point2[1]), (shape.point3[0], shape.point3[1])}:
@@ -122,36 +133,34 @@ def add_shape(shape, shapes):
 
 def calculate(points):
     vector_list = get_vectors(points)
-    shape_list = get_shapes(vector_list)
+    shapes = get_shapes(vector_list)
+    return shapes
 
-    print("\n------Results------\n\nVectors:")
-    for v in vector_list:
-        print(v.xy)
-
+def display(shapes):
     print("\nParallelograms:")
-    for s in shape_list[0]:
+    for s in shapes.parallelograms:
         print(s.point1, s.point2, s.point3, s.point4)
 
     print("\nRectangles:")
-    for s in shape_list[1]:
+    for s in shapes.rectangles:
         print(s.point1, s.point2, s.point3, s.point4)
 
     print("\nRhombi:")
-    for s in shape_list[2]:
+    for s in shapes.rhombi:
         print(s.point1, s.point2, s.point3, s.point4)
 
     print("\nSquares:")
-    for s in shape_list[3]:
+    for s in shapes.squares:
         print(s.point1, s.point2, s.point3, s.point4)
 
     print("\nIsosceles Trapezia:")
-    for s in shape_list[4]:
+    for s in shapes.isosceles_trapezia:
         print(s.point1, s.point2, s.point3, s.point4)
 
     print("\nIsosceles Triangles:")
-    for s in shape_list[5]:
+    for s in shapes.isosceles_triangles:
         print(s.point1, s.point2, s.point3)
 
     print("\nRight Triangles:")
-    for s in shape_list[6]:
+    for s in shapes.right_triangles:
         print(s.point1, s.point2, s.point3)

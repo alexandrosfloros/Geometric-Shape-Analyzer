@@ -82,7 +82,7 @@ class UI(QMainWindow):
         self.main_layout.addWidget(self.plot_frame)
     
     def get_point(self):
-        point = np.array([int(self.x_spinbox.text()[3:]), int(self.y_spinbox.text()[3:])])
+        point = np.array([self.x_spinbox.value(), self.y_spinbox.value()])
         return point
 
     def spinbox_add_point(self):
@@ -102,7 +102,6 @@ class UI(QMainWindow):
     def remove_point(self, point):
         global point_list
         new_point_list = []
-        update = False
         for p in point_list:
             if not np.array_equal(p, point):  
                 new_point_list.append(p)
@@ -112,6 +111,8 @@ class UI(QMainWindow):
     def clear_points(self):
         point_list.clear()
         self.update_points()
+        self.x_spinbox.setValue(0)
+        self.y_spinbox.setValue(0)
 
     def random_point(self):
         print("random point")
@@ -134,7 +135,8 @@ class UI(QMainWindow):
     
     def update_points(self):
         self.update_table()
-        calculate(point_list)
+        shapes = calculate(point_list)
+        self.update_tree(shapes)
         self.update_plot()
 
     def update_table(self):
@@ -143,6 +145,61 @@ class UI(QMainWindow):
         for n, p in enumerate(point_list):
             self.plot_table.setItem(n, 0, QTableWidgetItem(str(p[0])))
             self.plot_table.setItem(n, 1, QTableWidgetItem(str(p[1])))
+
+    def update_tree(self, shapes):
+        display(shapes)
+        self.plot_tree.clear()
+        if shapes.parallelograms:
+            shape_item = self.get_shape_item("Parallelograms")
+            points_items = self.get_points_items(shapes.parallelograms)
+            shape_item.addChildren(points_items)
+            self.plot_tree.addTopLevelItem(shape_item)
+        if shapes.rectangles:
+            shape_item = self.get_shape_item("Rectangles")
+            points_items = self.get_points_items(shapes.rectangles)
+            shape_item.addChildren(points_items)
+            self.plot_tree.addTopLevelItem(shape_item)
+        if shapes.rhombi:
+            shape_item = self.get_shape_item("Rhombi")
+            points_items = self.get_points_items(shapes.rhombi)
+            shape_item.addChildren(points_items)
+            self.plot_tree.addTopLevelItem(shape_item)
+        if shapes.squares:
+            shape_item = self.get_shape_item("Squares")
+            points_items = self.get_points_items(shapes.squares)
+            shape_item.addChildren(points_items)
+            self.plot_tree.addTopLevelItem(shape_item)
+        if shapes.isosceles_trapezia:
+            shape_item = self.get_shape_item("Isosceles Trapezia")
+            points_items = self.get_points_items(shapes.isosceles_trapezia)
+            shape_item.addChildren(points_items)
+            self.plot_tree.addTopLevelItem(shape_item)
+        if shapes.isosceles_triangles:
+            shape_item = self.get_shape_item("Isosceles Triangles")
+            points_items = self.get_points_items(shapes.isosceles_triangles)
+            shape_item.addChildren(points_items)
+            self.plot_tree.addTopLevelItem(shape_item)
+        if shapes.right_triangles:
+            shape_item = self.get_shape_item("Right Triangles")
+            points_items = self.get_points_items(shapes.right_triangles)
+            shape_item.addChildren(points_items)
+            self.plot_tree.addTopLevelItem(shape_item)
+    
+    def get_shape_item(self, name):
+        item = QTreeWidgetItem(self.plot_tree)
+        item.setText(0, name)
+        return item
+    
+    def get_points_items(self, shape):
+        items = []
+        if isinstance(shape[0], Quadrilateral):
+            for s in shape:
+                items.append(QTreeWidgetItem([str(s.point1) + str(s.point2) + str(s.point3) + str(s.point4)]))
+        else:
+            for s in shape:
+                items.append(QTreeWidgetItem([str(s.point1) + str(s.point2) + str(s.point3)]))
+        return items
+
 
     def update_plot(self):
         if not plt.fignum_exists(1):
@@ -157,12 +214,14 @@ class UI(QMainWindow):
 
     def click_plot(self, event):
         try:
-            x, y = event.xdata, event.ydata
-            point = np.array([int(round(x)), int(round(y))])
+            x, y = int(round(event.xdata)), int(round(event.ydata))
+            point = np.array([x, y])
             if any(np.array_equal(p, point) for p in point_list):
                 self.remove_point(point)
             else:
                 self.add_point(point)
+            self.x_spinbox.setValue(x)
+            self.y_spinbox.setValue(y)
         except:
             pass
 
