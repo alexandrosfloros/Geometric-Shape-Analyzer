@@ -62,14 +62,23 @@ def get_shapes(vectors):
 
     for i in range(len_vectors):
         for j in range(i + 1, len_vectors):
-            x1 = vectors[i].point1[0]
-            y1 = vectors[i].point1[1]
-            x2 = vectors[i].point2[0]
-            y2 = vectors[i].point2[1]
-            x3 = vectors[j].point2[0]
-            y3 = vectors[j].point2[1]
-            x4 = vectors[j].point1[0]
-            y4 = vectors[j].point1[1]
+            v1 = vectors[i]
+            v2 = vectors[j]
+            
+            if v1.x < 0:
+                v1 = Vector(v1.point2, v1.point1)
+
+            if v2.x < 0:
+                v2 = Vector(v2.point2, v2.point1)
+
+            x1 = v1.point1[0]
+            y1 = v1.point1[1]
+            x2 = v1.point2[0]
+            y2 = v1.point2[1]
+            x3 = v2.point2[0]
+            y3 = v2.point2[1]
+            x4 = v2.point1[0]
+            y4 = v2.point1[1]
 
             x41 = x4 - x1
             y41 = y4 - y1
@@ -106,7 +115,7 @@ def get_shapes(vectors):
 
             elif np.linalg.det([vector1, vector3]) != 0:
                 quadrilateral = Quadrilateral(point1, point2, point3, point4)
-                if np.array_equal(vector1, vector2) or np.array_equal(vector1, -1 * vector2):
+                if np.array_equal(vector1, vector2):# or np.array_equal(vector1, -1 * vector2):
                     add_shape(quadrilateral, parallelogram_list)
                     if np.dot(vector1, vector3) == 0:
                         add_shape(quadrilateral, rectangle_list)
