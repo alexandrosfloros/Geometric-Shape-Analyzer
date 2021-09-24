@@ -76,6 +76,7 @@ class UI(QMainWindow):
         self.plot_tree = QTreeWidget(self.plot_frame)
         self.plot_tree.setColumnCount(1)
         self.plot_tree.setHeaderLabel("Shapes")
+        self.plot_tree.itemClicked.connect(self.click_points_item)
 
         self.plot_layout.addWidget(self.plot_table)
         self.plot_layout.addWidget(self.plot_tree)
@@ -118,20 +119,19 @@ class UI(QMainWindow):
         print("random point")
 
     def create_plot(self):
-        global fig, axes
-        fig, axes = plt.subplots()
+        self.fig, self.axes = plt.subplots()
         self.set_axes()
-        fig.canvas.mpl_connect("button_press_event", self.click_plot)
+        self.fig.canvas.mpl_connect("button_press_event", self.click_plot)
         plt.gca().set_aspect("equal", adjustable = "box")
     
     def set_axes(self):
-        axes.set_title("Points")
-        axes.set_xlim(-16, 16)
-        axes.set_ylim(-16, 16)
-        axes.set_xticks(np.arange(-16, 17), minor = True)
-        axes.set_yticks(np.arange(-16, 17), minor = True)
-        axes.grid(which= "major", alpha = 0.6)
-        axes.grid(which= "minor", alpha = 0.3)
+        self.axes.set_title("Points")
+        self.axes.set_xlim(-16, 16)
+        self.axes.set_ylim(-16, 16)
+        self.axes.set_xticks(np.arange(-16, 17), minor = True)
+        self.axes.set_yticks(np.arange(-16, 17), minor = True)
+        self.axes.grid(which= "major", alpha = 0.6)
+        self.axes.grid(which= "minor", alpha = 0.3)
     
     def update_points(self):
         self.update_table()
@@ -150,54 +150,55 @@ class UI(QMainWindow):
         display(shapes)
         self.plot_tree.clear()
         if shapes.parallelograms:
-            shape_item = self.get_shape_item("Parallelograms")
+            shape_item = self.get_shape_item(shapes.parallelograms, "Parallelograms")
             points_items = self.get_points_items(shapes.parallelograms)
             shape_item.addChildren(points_items)
             self.plot_tree.addTopLevelItem(shape_item)
         if shapes.rectangles:
-            shape_item = self.get_shape_item("Rectangles")
+            shape_item = self.get_shape_item(shapes.rectangles, "Rectangles")
             points_items = self.get_points_items(shapes.rectangles)
             shape_item.addChildren(points_items)
             self.plot_tree.addTopLevelItem(shape_item)
         if shapes.rhombi:
-            shape_item = self.get_shape_item("Rhombi")
+            shape_item = self.get_shape_item(shapes.rhombi, "Rhombi")
             points_items = self.get_points_items(shapes.rhombi)
             shape_item.addChildren(points_items)
             self.plot_tree.addTopLevelItem(shape_item)
         if shapes.squares:
-            shape_item = self.get_shape_item("Squares")
+            shape_item = self.get_shape_item(shapes.squares, "Squares")
             points_items = self.get_points_items(shapes.squares)
             shape_item.addChildren(points_items)
             self.plot_tree.addTopLevelItem(shape_item)
         if shapes.isosceles_trapezia:
-            shape_item = self.get_shape_item("Isosceles Trapezia")
+            shape_item = self.get_shape_item(shapes.isosceles_trapezia, "Isosceles_Trapezia")
             points_items = self.get_points_items(shapes.isosceles_trapezia)
             shape_item.addChildren(points_items)
             self.plot_tree.addTopLevelItem(shape_item)
         if shapes.isosceles_triangles:
-            shape_item = self.get_shape_item("Isosceles Triangles")
+            shape_item = self.get_shape_item(shapes.isosceles_triangles, "Isosceles_Triangles")
             points_items = self.get_points_items(shapes.isosceles_triangles)
             shape_item.addChildren(points_items)
             self.plot_tree.addTopLevelItem(shape_item)
         if shapes.right_triangles:
-            shape_item = self.get_shape_item("Right Triangles")
+            shape_item = self.get_shape_item(shapes.right_triangles, "Right_Triangles")
             points_items = self.get_points_items(shapes.right_triangles)
             shape_item.addChildren(points_items)
             self.plot_tree.addTopLevelItem(shape_item)
     
-    def get_shape_item(self, name):
+    def get_shape_item(self, shape, name):
         item = QTreeWidgetItem(self.plot_tree)
-        item.setText(0, name)
+        text = name + f"({len(shape)})"
+        item.setText(0, text)
         return item
     
     def get_points_items(self, shape):
         items = []
         if isinstance(shape[0], Quadrilateral):
             for s in shape:
-                items.append(QTreeWidgetItem([str(s.point1) + str(s.point2) + str(s.point3) + str(s.point4)]))
+                items.append(QTreeWidgetItem([f"{s.point1}, {s.point2}, {s.point3}, {s.point4}"]))
         else:
             for s in shape:
-                items.append(QTreeWidgetItem([str(s.point1) + str(s.point2) + str(s.point3)]))
+                items.append(QTreeWidgetItem([f"{s.point1}, {s.point2}, {s.point3}"]))
         return items
 
 
@@ -208,7 +209,7 @@ class UI(QMainWindow):
         self.set_axes()
 
         for p in point_list:
-            axes.plot(p[0], p[1], marker= "o", markersize = 3, color = "blue")
+            self.axes.plot(p[0], p[1], marker = "o", markersize = 3, color = "blue")
         
         plt.show()
 
@@ -224,6 +225,25 @@ class UI(QMainWindow):
             self.y_spinbox.setValue(y)
         except:
             pass
+
+    def click_points_item(self, item):
+        text = item.text(0)
+        if " " in text:
+            self.update_plot()
+            points = text.split(", ")
+
+            for n, p in enumerate(points):
+                p = p.replace("[", "").replace("]", "")
+                x, y = p.split()
+                points[n] = np.array([int(x), int(y)])
+
+            self.axes.plot([points[0][0], points[1][0]], [points[0][1], points[1][1]], marker = "o", markersize = 3, color = "red")
+            self.axes.plot([points[1][0], points[2][0]], [points[1][1], points[2][1]], marker = "o", markersize = 3, color = "red")
+            if len(points) == 3:
+                self.axes.plot([points[2][0], points[0][0]], [points[2][1], points[0][1]], marker = "o", markersize = 3, color = "red")
+            else:
+                self.axes.plot([points[2][0], points[3][0]], [points[2][1], points[3][1]], marker = "o", markersize = 3, color = "red")
+                self.axes.plot([points[3][0], points[0][0]], [points[3][1], points[0][1]], marker = "o", markersize = 3, color = "red")
 
 class ReadOnlyDelegate(QStyledItemDelegate):
     def createEditor(self, parent, option, index):
