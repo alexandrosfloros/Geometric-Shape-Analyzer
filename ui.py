@@ -1,4 +1,3 @@
-from PyQt6.QtCore import Qt
 from PyQt6.QtWidgets import *
 import matplotlib.pyplot as plt
 from geometry import *
@@ -147,7 +146,6 @@ class UI(QMainWindow):
             self.plot_table.setItem(n, 1, QTableWidgetItem(str(p[1])))
 
     def update_tree(self, shapes):
-        display(shapes)
         self.plot_tree.clear()
         if shapes.parallelograms:
             shape_item = self.get_shape_item(shapes.parallelograms, "Parallelograms")

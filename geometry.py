@@ -149,35 +149,6 @@ def add_shape(shape, shapes):
     shapes.append(shape)
 
 def calculate(points):
-    vector_list = get_vectors(points)
-    shapes = get_shapes(vector_list)
+    vectors = get_vectors(points)
+    shapes = get_shapes(vectors)
     return shapes
-
-def display(shapes):
-    print("\nParallelograms:")
-    for s in shapes.parallelograms:
-        print(s.point1, s.point2, s.point3, s.point4)
-
-    print("\nRectangles:")
-    for s in shapes.rectangles:
-        print(s.point1, s.point2, s.point3, s.point4)
-
-    print("\nRhombi:")
-    for s in shapes.rhombi:
-        print(s.point1, s.point2, s.point3, s.point4)
-
-    print("\nSquares:")
-    for s in shapes.squares:
-        print(s.point1, s.point2, s.point3, s.point4)
-
-    print("\nIsosceles Trapezia:")
-    for s in shapes.isosceles_trapezia:
-        print(s.point1, s.point2, s.point3, s.point4)
-
-    print("\nIsosceles Triangles:")
-    for s in shapes.isosceles_triangles:
-        print(s.point1, s.point2, s.point3)
-
-    print("\nRight Triangles:")
-    for s in shapes.right_triangles:
-        print(s.point1, s.point2, s.point3)
