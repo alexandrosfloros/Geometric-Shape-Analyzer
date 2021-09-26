@@ -1,5 +1,5 @@
-from PyQt6.QtWidgets import *
 import matplotlib.pyplot as plt
+from PyQt6.QtWidgets import *
 from geometry import *
 
 class UI(QMainWindow):
@@ -27,7 +27,7 @@ class UI(QMainWindow):
         self.y_spinbox.setPrefix("Y: ")
         self.y_spinbox.setMinimum(-16)
         self.y_spinbox.setMaximum(16)
-        self.input_layout.addWidget(self.y_spinbox, 3, 1, 1, 1)
+        self.input_layout.addWidget(self.y_spinbox, 2, 1, 1, 1)
 
         self.add_button = QPushButton(self.input_frame)
         self.add_button.setText("Add")
@@ -37,12 +37,17 @@ class UI(QMainWindow):
         self.remove_button = QPushButton(self.input_frame)
         self.remove_button.setText("Remove")
         self.remove_button.clicked.connect(self.spinbox_remove_point)
-        self.input_layout.addWidget(self.remove_button, 3, 2, 1, 1)
+        self.input_layout.addWidget(self.remove_button, 2, 2, 1, 1)
 
         self.clear_button = QPushButton(self.input_frame)
         self.clear_button.setText("Clear")
         self.clear_button.clicked.connect(self.clear_points)
-        self.input_layout.addWidget(self.clear_button, 3, 3, 1, 1)
+        self.input_layout.addWidget(self.clear_button, 2, 3, 1, 1)
+
+        self.calculate_button = QPushButton(self.input_frame)
+        self.calculate_button.setText("Identify\nShapes")
+        self.calculate_button.clicked.connect(self.calculate)
+        self.input_layout.addWidget(self.calculate_button, 3, 1, 1, 3)
 
         self.random_frame = QFrame(self.input_frame)
         self.random_layout = QHBoxLayout(self.random_frame)
@@ -75,7 +80,7 @@ class UI(QMainWindow):
         self.plot_tree = QTreeWidget(self.plot_frame)
         self.plot_tree.setColumnCount(1)
         self.plot_tree.setHeaderLabel("Shapes")
-        self.plot_tree.itemClicked.connect(self.click_points_item)
+        self.plot_tree.currentItemChanged.connect(self.click_points_item)
 
         self.plot_layout.addWidget(self.plot_table)
         self.plot_layout.addWidget(self.plot_tree)
@@ -124,7 +129,7 @@ class UI(QMainWindow):
         plt.gca().set_aspect("equal", adjustable = "box")
     
     def set_axes(self):
-        self.axes.set_title("Points")
+        self.axes.set_title("Left click to add or remove a point")
         self.axes.set_xlim(-16, 16)
         self.axes.set_ylim(-16, 16)
         self.axes.set_xticks(np.arange(-16, 17), minor = True)
@@ -134,8 +139,7 @@ class UI(QMainWindow):
     
     def update_points(self):
         self.update_table()
-        shapes = calculate(point_list)
-        self.update_tree(shapes)
+        self.update_tree()
         self.update_plot()
 
     def update_table(self):
@@ -145,7 +149,7 @@ class UI(QMainWindow):
             self.plot_table.setItem(n, 0, QTableWidgetItem(str(p[0])))
             self.plot_table.setItem(n, 1, QTableWidgetItem(str(p[1])))
 
-    def update_tree(self, shapes):
+    def update_tree(self, shapes = Shapes()):
         self.plot_tree.clear()
         if shapes.parallelograms:
             shape_item = self.get_shape_item(shapes.parallelograms, "Parallelograms")
@@ -225,23 +229,30 @@ class UI(QMainWindow):
             pass
 
     def click_points_item(self, item):
-        text = item.text(0)
-        if " " in text:
-            self.update_plot()
-            points = text.split(", ")
+        self.update_plot()
+        try:
+            text = item.text(0)
+            if " " in text:
+                points = text.split(", ")
 
-            for n, p in enumerate(points):
-                p = p.replace("[", "").replace("]", "")
-                x, y = p.split()
-                points[n] = np.array([int(x), int(y)])
+                for n, p in enumerate(points):
+                    p = p.replace("[", "").replace("]", "")
+                    x, y = p.split()
+                    points[n] = np.array([int(x), int(y)])
 
-            self.axes.plot([points[0][0], points[1][0]], [points[0][1], points[1][1]], marker = "o", markersize = 3, color = "red")
-            self.axes.plot([points[1][0], points[2][0]], [points[1][1], points[2][1]], marker = "o", markersize = 3, color = "red")
-            if len(points) == 3:
-                self.axes.plot([points[2][0], points[0][0]], [points[2][1], points[0][1]], marker = "o", markersize = 3, color = "red")
-            else:
-                self.axes.plot([points[2][0], points[3][0]], [points[2][1], points[3][1]], marker = "o", markersize = 3, color = "red")
-                self.axes.plot([points[3][0], points[0][0]], [points[3][1], points[0][1]], marker = "o", markersize = 3, color = "red")
+                self.axes.plot([points[0][0], points[1][0]], [points[0][1], points[1][1]], marker = "o", markersize = 3, color = "red")
+                self.axes.plot([points[1][0], points[2][0]], [points[1][1], points[2][1]], marker = "o", markersize = 3, color = "red")
+                if len(points) == 3:
+                    self.axes.plot([points[2][0], points[0][0]], [points[2][1], points[0][1]], marker = "o", markersize = 3, color = "red")
+                else:
+                    self.axes.plot([points[2][0], points[3][0]], [points[2][1], points[3][1]], marker = "o", markersize = 3, color = "red")
+                    self.axes.plot([points[3][0], points[0][0]], [points[3][1], points[0][1]], marker = "o", markersize = 3, color = "red")
+        except:
+            pass
+
+    def calculate(self):
+        shapes = calculate(point_list)
+        self.update_tree(shapes)
 
 class ReadOnlyDelegate(QStyledItemDelegate):
     def createEditor(self, parent, option, index):
