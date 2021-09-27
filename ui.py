@@ -1,6 +1,7 @@
 import matplotlib.pyplot as plt
 from PyQt6.QtWidgets import *
 from geometry import *
+from random import randrange
 
 class UI(QMainWindow):
     def __init__(self):
@@ -57,7 +58,7 @@ class UI(QMainWindow):
 
         self.random_button = QPushButton(self.random_frame)
         self.random_button.setText("Random")
-        self.random_button.clicked.connect(self.random_point)
+        self.random_button.clicked.connect(self.random_points)
         self.random_layout.addWidget(self.random_button)
 
         self.random_spinbox = QSpinBox(self.random_frame)
@@ -120,9 +121,22 @@ class UI(QMainWindow):
         self.update_points()
         self.x_spinbox.setValue(0)
         self.y_spinbox.setValue(0)
+        self.random_spinbox.setValue(1)
 
-    def random_point(self):
-        print("random point")
+    def random_points(self):
+        point_num = self.random_spinbox.value()
+        for i in range(point_num):
+            self.add_random()
+        self.update_points()
+
+    def add_random(self):
+        x = randrange(-16, 17)
+        y = randrange(-16, 17)
+        point = np.array([x, y])
+        if any(np.array_equal(p, point) for p in point_list):
+            self.add_random()
+        else:
+            point_list.append(point)
 
     def create_plot(self):
         self.fig, self.axes = plt.subplots()
