@@ -4,6 +4,8 @@ from geometry import *
 
 class UI(QMainWindow):
     def __init__(self):
+        self.tree_updated = True
+
         super().__init__()
         self.setWindowTitle("Shape Analysis")
         self.setGeometry(0, 0, 600, 400)
@@ -79,7 +81,7 @@ class UI(QMainWindow):
 
         self.plot_tree = QTreeWidget(self.plot_frame)
         self.plot_tree.setColumnCount(1)
-        self.plot_tree.setHeaderLabel("Shapes")
+        self.plot_tree.setHeaderLabel("Shapes:")
         self.plot_tree.currentItemChanged.connect(self.click_points_item)
 
         self.plot_layout.addWidget(self.plot_table)
@@ -138,6 +140,8 @@ class UI(QMainWindow):
         self.axes.grid(which= "minor", alpha = 0.3)
     
     def update_points(self):
+        self.tree_updated = False
+        self.plot_tree.setHeaderLabel("Outdated - Press Identify Shapes to Update!")
         self.update_table()
         self.update_tree()
         self.update_plot()
@@ -152,37 +156,37 @@ class UI(QMainWindow):
     def update_tree(self, shapes = Shapes()):
         self.plot_tree.clear()
         if shapes.parallelograms:
-            shape_item = self.get_shape_item(shapes.parallelograms, "Parallelograms")
+            shape_item = self.get_shape_item(shapes.parallelograms, "parallelograms")
             points_items = self.get_points_items(shapes.parallelograms)
             shape_item.addChildren(points_items)
             self.plot_tree.addTopLevelItem(shape_item)
         if shapes.rectangles:
-            shape_item = self.get_shape_item(shapes.rectangles, "Rectangles")
+            shape_item = self.get_shape_item(shapes.rectangles, "rectangles")
             points_items = self.get_points_items(shapes.rectangles)
             shape_item.addChildren(points_items)
             self.plot_tree.addTopLevelItem(shape_item)
         if shapes.rhombi:
-            shape_item = self.get_shape_item(shapes.rhombi, "Rhombi")
+            shape_item = self.get_shape_item(shapes.rhombi, "rhombi")
             points_items = self.get_points_items(shapes.rhombi)
             shape_item.addChildren(points_items)
             self.plot_tree.addTopLevelItem(shape_item)
         if shapes.squares:
-            shape_item = self.get_shape_item(shapes.squares, "Squares")
+            shape_item = self.get_shape_item(shapes.squares, "squares")
             points_items = self.get_points_items(shapes.squares)
             shape_item.addChildren(points_items)
             self.plot_tree.addTopLevelItem(shape_item)
         if shapes.isosceles_trapezia:
-            shape_item = self.get_shape_item(shapes.isosceles_trapezia, "Isosceles_Trapezia")
+            shape_item = self.get_shape_item(shapes.isosceles_trapezia, "isosceles_trapezia")
             points_items = self.get_points_items(shapes.isosceles_trapezia)
             shape_item.addChildren(points_items)
             self.plot_tree.addTopLevelItem(shape_item)
         if shapes.isosceles_triangles:
-            shape_item = self.get_shape_item(shapes.isosceles_triangles, "Isosceles_Triangles")
+            shape_item = self.get_shape_item(shapes.isosceles_triangles, "isosceles_triangles")
             points_items = self.get_points_items(shapes.isosceles_triangles)
             shape_item.addChildren(points_items)
             self.plot_tree.addTopLevelItem(shape_item)
         if shapes.right_triangles:
-            shape_item = self.get_shape_item(shapes.right_triangles, "Right_Triangles")
+            shape_item = self.get_shape_item(shapes.right_triangles, "right_triangles")
             points_items = self.get_points_items(shapes.right_triangles)
             shape_item.addChildren(points_items)
             self.plot_tree.addTopLevelItem(shape_item)
@@ -251,8 +255,11 @@ class UI(QMainWindow):
             pass
 
     def calculate(self):
-        shapes = calculate(point_list)
-        self.update_tree(shapes)
+        if not self.tree_updated:
+            shapes = calculate(point_list)
+            self.update_tree(shapes)
+            self.plot_tree.setHeaderLabel("Shapes:")
+            self.tree_updated = True
 
 class ReadOnlyDelegate(QStyledItemDelegate):
     def createEditor(self, parent, option, index):
