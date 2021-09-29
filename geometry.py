@@ -2,7 +2,7 @@ import numpy as np
 point_list = []
 
 class Shapes:
-    def __init__(self, parallelograms = [], rectangles = [], rhombi = [], squares = [], isosceles_trapezia = [], isosceles_triangles = [], right_triangles = []):
+    def __init__(self, parallelograms, rectangles, rhombi, squares, isosceles_trapezia, isosceles_triangles, right_triangles):
         self.parallelograms = parallelograms
         self.rectangles = rectangles
         self.rhombi = rhombi

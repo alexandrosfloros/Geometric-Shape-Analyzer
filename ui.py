@@ -48,7 +48,7 @@ class UI(QMainWindow):
         self.input_layout.addWidget(self.clear_button, 2, 3, 1, 1)
 
         self.calculate_button = QPushButton(self.input_frame)
-        self.calculate_button.setText("Identify\nShapes")
+        self.calculate_button.setText("Find\nShapes")
         self.calculate_button.clicked.connect(self.calculate)
         self.input_layout.addWidget(self.calculate_button, 3, 1, 1, 3)
 
@@ -63,7 +63,7 @@ class UI(QMainWindow):
 
         self.random_spinbox = QSpinBox(self.random_frame)
         self.random_spinbox.setMinimum(1)
-        self.random_spinbox.setMaximum(100)
+        self.random_spinbox.setMaximum(10)
         self.random_layout.addWidget(self.random_spinbox)
 
         self.input_layout.addWidget(self.random_frame, 1, 3, 1, 1)
@@ -82,7 +82,7 @@ class UI(QMainWindow):
 
         self.plot_tree = QTreeWidget(self.plot_frame)
         self.plot_tree.setColumnCount(1)
-        self.plot_tree.setHeaderLabel("Shapes:")
+        self.plot_tree.setHeaderLabel("No shapes found - At least 3 points are needed!")
         self.plot_tree.currentItemChanged.connect(self.click_points_item)
 
         self.plot_layout.addWidget(self.plot_table)
@@ -116,13 +116,6 @@ class UI(QMainWindow):
         point_list = new_point_list.copy()
         self.update_points()
     
-    def clear_points(self):
-        point_list.clear()
-        self.update_points()
-        self.x_spinbox.setValue(0)
-        self.y_spinbox.setValue(0)
-        self.random_spinbox.setValue(1)
-
     def random_points(self):
         point_num = self.random_spinbox.value()
         for i in range(point_num):
@@ -137,6 +130,13 @@ class UI(QMainWindow):
             self.add_random()
         else:
             point_list.append(point)
+
+    def clear_points(self):
+        point_list.clear()
+        self.update_points()
+        self.x_spinbox.setValue(0)
+        self.y_spinbox.setValue(0)
+        self.random_spinbox.setValue(1)
 
     def create_plot(self):
         self.fig, self.axes = plt.subplots()
@@ -155,9 +155,12 @@ class UI(QMainWindow):
     
     def update_points(self):
         self.tree_updated = False
-        self.plot_tree.setHeaderLabel("Outdated - Press Identify Shapes to Update!")
+        if len(point_list) < 3:
+            self.plot_tree_message("few_points")
+        else:
+            self.plot_tree_message("outdated")
+        self.plot_tree.clear()
         self.update_table()
-        self.update_tree()
         self.update_plot()
 
     def update_table(self):
@@ -167,7 +170,7 @@ class UI(QMainWindow):
             self.plot_table.setItem(n, 0, QTableWidgetItem(str(p[0])))
             self.plot_table.setItem(n, 1, QTableWidgetItem(str(p[1])))
 
-    def update_tree(self, shapes = Shapes()):
+    def update_tree(self, shapes):
         self.plot_tree.clear()
         if shapes.parallelograms:
             shape_item = self.get_shape_item(shapes.parallelograms, "parallelograms")
@@ -204,6 +207,12 @@ class UI(QMainWindow):
             points_items = self.get_points_items(shapes.right_triangles)
             shape_item.addChildren(points_items)
             self.plot_tree.addTopLevelItem(shape_item)
+        
+        if len(shapes.parallelograms) == 0 and len(shapes.isosceles_trapezia) == 0 and len(shapes.isosceles_triangles) == 0 and len(shapes.right_triangles) == 0:
+            self.plot_tree_message("no_shapes")
+            return
+
+        self.plot_tree_message("shapes_found")
     
     def get_shape_item(self, shape, name):
         item = QTreeWidgetItem(self.plot_tree)
@@ -270,10 +279,22 @@ class UI(QMainWindow):
 
     def calculate(self):
         if not self.tree_updated:
-            shapes = calculate(point_list)
-            self.update_tree(shapes)
+            if len(point_list) > 2:
+                self.tree_updated = True
+                shapes = calculate(point_list)
+                self.update_tree(shapes)
+            else:
+                self.plot_tree_message("few_points")
+
+    def plot_tree_message(self, id):
+        if id == "few_points":
+            self.plot_tree.setHeaderLabel("No shapes found - At least 3 points are needed!")
+        elif id == "outdated":
+            self.plot_tree.setHeaderLabel("Outdated - Press Find Shapes to update!")
+        elif id == "no_shapes":
+            self.plot_tree.setHeaderLabel("No shapes found - Try adding more points!")
+        elif id == "found_shapes":
             self.plot_tree.setHeaderLabel("Shapes:")
-            self.tree_updated = True
 
 class ReadOnlyDelegate(QStyledItemDelegate):
     def createEditor(self, parent, option, index):
