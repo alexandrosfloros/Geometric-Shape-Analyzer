@@ -2,12 +2,13 @@ import numpy as np
 point_list = []
 
 class Shapes:
-    def __init__(self, parallelograms, rectangles, rhombi, squares, isosceles_trapezia, isosceles_triangles, right_triangles):
+    def __init__(self, parallelograms, rectangles, rhombi, squares, isosceles_trapezia, cyclic_quadrilaterals, isosceles_triangles, right_triangles):
         self.parallelograms = parallelograms
         self.rectangles = rectangles
         self.rhombi = rhombi
         self.squares = squares
         self.isosceles_trapezia = isosceles_trapezia
+        self.cyclic_quadrilaterals = cyclic_quadrilaterals
         self.isosceles_triangles = isosceles_triangles
         self.right_triangles = right_triangles
 
@@ -55,6 +56,7 @@ def get_shapes(vectors):
     rhombus_list = []
     square_list = []
     isosceles_trapezium_list = []
+    cyclic_quadrilateral_list = []
     isosceles_triangle_list = []
     right_triangle_list = []
 
@@ -94,6 +96,8 @@ def get_shapes(vectors):
             y31 = y3 - y1
             x42 = x4 - x2
             y42 = y4 - y2
+            x32 = x3 - x2
+            y32 = y3 - y2
 
             point1 = np.array([x1, y1])
             point2 = np.array([x2, y2])
@@ -105,6 +109,7 @@ def get_shapes(vectors):
             vector3 = np.array([x41, y41])
             vector4 = np.array([x31, y31])
             vector5 = np.array([x42, y42])
+            vector6 = np.array([x32, y32])
 
             #Triangles
 
@@ -113,9 +118,16 @@ def get_shapes(vectors):
                     triangle = Triangle(point1, point2, point4)
                 elif np.array_equal(point1, point4) or np.array_equal(point2, point4):
                     triangle = Triangle(point1, point2, point3)
+                
                 if np.linalg.det([vector1, vector2]) != 0:
+
+                    #Isosceles Triangles
+
                     if np.linalg.norm(vector1) == np.linalg.norm(vector2):
                         add_shape(triangle, isosceles_triangle_list)
+                    
+                    #Right Triangles
+                    
                     if np.dot(vector1, vector2) == 0:
                         add_shape(triangle, right_triangle_list)
 
@@ -123,17 +135,38 @@ def get_shapes(vectors):
 
             elif np.linalg.det([vector1, vector3]) != 0:
                 quadrilateral = Quadrilateral(point1, point2, point3, point4)
+
+                #Parallelograms
+
                 if np.array_equal(vector1, vector2) or np.array_equal(vector1, -1 * vector2):
                     add_shape(quadrilateral, parallelogram_list)
+                    
+                    #Rectangles
+                    
                     if np.dot(vector1, vector3) == 0:
                         add_shape(quadrilateral, rectangle_list)
+                    
+                    #Rhombi
+                    
                     if np.dot(vector4, vector5) == 0:
                         add_shape(quadrilateral, rhombus_list)
+                
+                #Isosceles Trapezia
+                
                 if np.linalg.det([vector1, vector2]) == 0 and np.linalg.norm(vector4) == np.linalg.norm(vector5):
                     add_shape(quadrilateral, isosceles_trapezium_list)
+
+                #Cyclic Quadrilaterals
+
+                if -0.001 < np.linalg.norm(vector1) * np.linalg.norm(vector2) + np.linalg.norm(vector3) * np.linalg.norm(vector6) - np.linalg.norm(vector4) * np.linalg.norm(vector5) < 0.001:
+                    add_shape(quadrilateral, cyclic_quadrilateral_list)
+    
+    #Squares
+    
     square_list = list(set(rectangle_list) & set(rhombus_list))
+    
     return Shapes(parallelogram_list, rectangle_list, rhombus_list, square_list,\
-        isosceles_trapezium_list, isosceles_triangle_list, right_triangle_list)
+        isosceles_trapezium_list, cyclic_quadrilateral_list, isosceles_triangle_list, right_triangle_list)
     
 def add_shape(shape, shapes):
     if isinstance(shape, Quadrilateral):

@@ -197,6 +197,11 @@ class UI(QMainWindow):
             points_items = self.get_points_items(shapes.isosceles_trapezia)
             shape_item.addChildren(points_items)
             self.plot_tree.addTopLevelItem(shape_item)
+        if shapes.cyclic_quadrilaterals:
+            shape_item = self.get_shape_item(shapes.cyclic_quadrilaterals, "cyclic_quadrilaterals")
+            points_items = self.get_points_items(shapes.cyclic_quadrilaterals)
+            shape_item.addChildren(points_items)
+            self.plot_tree.addTopLevelItem(shape_item)
         if shapes.isosceles_triangles:
             shape_item = self.get_shape_item(shapes.isosceles_triangles, "isosceles_triangles")
             points_items = self.get_points_items(shapes.isosceles_triangles)
@@ -208,11 +213,11 @@ class UI(QMainWindow):
             shape_item.addChildren(points_items)
             self.plot_tree.addTopLevelItem(shape_item)
         
-        if len(shapes.parallelograms) == 0 and len(shapes.isosceles_trapezia) == 0 and len(shapes.isosceles_triangles) == 0 and len(shapes.right_triangles) == 0:
+        if len(shapes.parallelograms) == 0 and len(shapes.cyclic_quadrilaterals) == 0 and len(shapes.isosceles_triangles) == 0 and len(shapes.right_triangles) == 0:
             self.plot_tree_message("no_shapes")
             return
 
-        self.plot_tree_message("shapes_found")
+        self.plot_tree_message("found_shapes")
     
     def get_shape_item(self, shape, name):
         item = QTreeWidgetItem(self.plot_tree)
@@ -267,13 +272,33 @@ class UI(QMainWindow):
                     x, y = p.split()
                     points[n] = np.array([int(x), int(y)])
 
-                self.axes.plot([points[0][0], points[1][0]], [points[0][1], points[1][1]], marker = "o", markersize = 3, color = "red")
-                self.axes.plot([points[1][0], points[2][0]], [points[1][1], points[2][1]], marker = "o", markersize = 3, color = "red")
+                x1 = points[0][0]
+                y1 = points[0][1]
+                x2 = points[1][0]
+                y2 = points[1][1]
+                x3 = points[2][0]
+                y3 = points[2][1]
+
+                self.axes.plot([x1, x2], [y1, y2], marker = "o", markersize = 3, color = "red")
+                self.axes.plot([x2, x3], [y2, y3], marker = "o", markersize = 3, color = "red")
+                
                 if len(points) == 3:
-                    self.axes.plot([points[2][0], points[0][0]], [points[2][1], points[0][1]], marker = "o", markersize = 3, color = "red")
+                    self.axes.plot([x3, x1], [y3, y1], marker = "o", markersize = 3, color = "red")
                 else:
-                    self.axes.plot([points[2][0], points[3][0]], [points[2][1], points[3][1]], marker = "o", markersize = 3, color = "red")
-                    self.axes.plot([points[3][0], points[0][0]], [points[3][1], points[0][1]], marker = "o", markersize = 3, color = "red")
+                    x4 = points[3][0]
+                    y4 = points[3][1]
+
+                    self.axes.plot([x3, x4], [y3, y4], marker = "o", markersize = 3, color = "red")
+                    self.axes.plot([x4, x1], [y4, y1], marker = "o", markersize = 3, color = "red")
+                    
+                    if "cyclic_quadrilaterals" in item.parent().text(0):
+                        d = 2 * (x1 * (y2 - y3) + x2 * (y3 - y1) + x3 * (y1 - y2))
+                        xc = ((x1 ** 2 + y1 ** 2) * (y2 - y3) + (x2 ** 2 + y2 ** 2) * (y3 - y1) + (x3 ** 2 + y3 ** 2) * (y1 - y2)) / d
+                        yc = ((x1 ** 2 + y1 ** 2) * (x3 - x2) + (x2 ** 2 + y2 ** 2) * (x1 - x3) + (x3 ** 2 + y3 ** 2) * (x2 - x1)) / d
+                        radius = np.linalg.norm(np.array([xc - x1, yc - y1]))
+                        circle = plt.Circle((xc, yc), radius, color = "green", fill = False)
+                        self.axes.add_patch(circle)
+                        self.axes.plot(xc, yc, marker = "o", markersize = 3, color = "green")
         except:
             pass
 
