@@ -111,8 +111,6 @@ def get_shapes(vectors):
             vector5 = np.array([x42, y42])
             vector6 = np.array([x32, y32])
 
-            #Triangles
-
             if np.array_equal(point1, point3) or np.array_equal(point2, point3) or np.array_equal(point1, point4) or np.array_equal(point2, point4):
                 if np.array_equal(point1, point3) or np.array_equal(point2, point3):
                     triangle = Triangle(point1, point2, point4)
@@ -120,48 +118,28 @@ def get_shapes(vectors):
                     triangle = Triangle(point1, point2, point3)
                 
                 if np.linalg.det([vector1, vector2]) != 0:
-
-                    #Isosceles Triangles
-
                     if np.linalg.norm(vector1) == np.linalg.norm(vector2):
                         add_shape(triangle, isosceles_triangle_list)
                     
-                    #Right Triangles
-                    
                     if np.dot(vector1, vector2) == 0:
                         add_shape(triangle, right_triangle_list)
-
-            #Quadrilaterals
-
             elif np.linalg.det([vector1, vector3]) != 0:
                 quadrilateral = Quadrilateral(point1, point2, point3, point4)
-
-                #Parallelograms
 
                 if np.array_equal(vector1, vector2) or np.array_equal(vector1, -1 * vector2):
                     add_shape(quadrilateral, parallelogram_list)
                     
-                    #Rectangles
-                    
                     if np.dot(vector1, vector3) == 0:
                         add_shape(quadrilateral, rectangle_list)
-                    
-                    #Rhombi
                     
                     if np.dot(vector4, vector5) == 0:
                         add_shape(quadrilateral, rhombus_list)
                 
-                #Isosceles Trapezia
-                
                 if np.linalg.det([vector1, vector2]) == 0 and np.linalg.norm(vector4) == np.linalg.norm(vector5):
                     add_shape(quadrilateral, isosceles_trapezium_list)
 
-                #Cyclic Quadrilaterals
-
                 if -0.001 < np.linalg.norm(vector1) * np.linalg.norm(vector2) + np.linalg.norm(vector3) * np.linalg.norm(vector6) - np.linalg.norm(vector4) * np.linalg.norm(vector5) < 0.001:
                     add_shape(quadrilateral, cyclic_quadrilateral_list)
-    
-    #Squares
     
     square_list = list(set(rectangle_list) & set(rhombus_list))
     

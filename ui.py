@@ -3,7 +3,7 @@ from PyQt6.QtWidgets import *
 from geometry import *
 from random import randrange
 
-class UI(QMainWindow):
+class UI(QWidget):
     def __init__(self):
         self.tree_updated = True
 
@@ -11,13 +11,8 @@ class UI(QMainWindow):
         self.setWindowTitle("Shape Analysis")
         self.setGeometry(0, 0, 600, 400)
 
-        self.main_widget = QWidget(self)
-        self.main_layout = QVBoxLayout(self.main_widget)
-
-        self.setCentralWidget(self.main_widget)
-        self.main_widget.setLayout(self.main_layout)
-
-        self.input_frame = QFrame(self.main_widget)
+        self.main_layout = QVBoxLayout(self)
+        self.input_frame = QFrame(self)
         self.input_layout = QGridLayout(self.input_frame)
 
         self.x_spinbox = QSpinBox(self.input_frame)
@@ -69,7 +64,7 @@ class UI(QMainWindow):
         self.input_layout.addWidget(self.random_frame, 1, 3, 1, 1)
         self.main_layout.addWidget(self.input_frame)
 
-        self.plot_frame = QFrame(self.main_widget)
+        self.plot_frame = QFrame(self)
         self.plot_layout = QHBoxLayout(self.plot_frame)
 
         self.plot_table = QTableWidget(self.plot_frame)
