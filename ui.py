@@ -8,7 +8,7 @@ class UI(QWidget):
         self.tree_updated = True
 
         super().__init__()
-        self.setWindowTitle("Shape Analysis")
+        self.setWindowTitle("Geometric Shape Analyser")
         self.setGeometry(0, 0, 600, 400)
 
         self.main_layout = QVBoxLayout(self)
