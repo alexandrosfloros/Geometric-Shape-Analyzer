@@ -1,6 +1,6 @@
 # Overview
 
-This is an application used to identify a variety of geometric shapes with different properties given a set of points on the plane.
+This is an application used to identify a variety of geometric shapes with different properties, given a set of points on the plane.
 
 # Motivation
 
