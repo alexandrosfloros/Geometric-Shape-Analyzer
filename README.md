@@ -31,7 +31,11 @@ Other features:
 * Flexible adding and removal of points
 * Robust to problematic inputs
 
-# Use
+# How to use
+
+## Execution
+
+The file used to run the project is ``main.py``.
 
 ## Placing points
 
