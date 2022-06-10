@@ -12,7 +12,7 @@ class UI(QWidget):
 
         super().__init__()
         self.setWindowTitle("Geometric Shape Analyser")
-        self.setGeometry(0, 0, 600, 750)
+        self.setGeometry(0, 0, 640, 785)
 
         self.main_layout = QVBoxLayout(self)
 
@@ -95,6 +95,8 @@ class UI(QWidget):
         self.create_plot()
 
         self.plot_canvas = FigureCanvas(self.fig)
+        self.plot_canvas.setMinimumWidth(self.plot_canvas.width())
+        self.plot_canvas.setFixedHeight(self.plot_canvas.height())
         self.plot_layout.addWidget(self.plot_canvas)
 
         self.main_layout.addWidget(self.plot_frame)
@@ -155,7 +157,7 @@ class UI(QWidget):
         plt.gca().set_aspect("equal", adjustable = "box")
 
     def set_axes(self):
-        self.axes.set_title("Left click to add or remove a point")
+        self.axes.set_title("Click to add or remove a point")
         self.axes.set_xlim(-16, 16)
         self.axes.set_ylim(-16, 16)
         self.axes.set_xticks(np.arange(-16, 17), minor = True)
