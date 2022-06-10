@@ -1,5 +1,8 @@
 import matplotlib.pyplot as plt
+from matplotlib.backends.backend_qtagg import FigureCanvas
+
 from PyQt6.QtWidgets import *
+
 from geometry import *
 from random import randrange
 
@@ -9,9 +12,10 @@ class UI(QWidget):
 
         super().__init__()
         self.setWindowTitle("Geometric Shape Analyser")
-        self.setGeometry(0, 0, 600, 400)
+        self.setGeometry(0, 0, 600, 750)
 
         self.main_layout = QVBoxLayout(self)
+
         self.input_frame = QFrame(self)
         self.input_layout = QGridLayout(self.input_frame)
 
@@ -62,26 +66,37 @@ class UI(QWidget):
         self.random_layout.addWidget(self.random_spinbox)
 
         self.input_layout.addWidget(self.random_frame, 1, 3, 1, 1)
+
         self.main_layout.addWidget(self.input_frame)
 
-        self.plot_frame = QFrame(self)
-        self.plot_layout = QHBoxLayout(self.plot_frame)
+        self.output_frame = QFrame(self)
+        self.output_layout = QHBoxLayout(self.output_frame)
 
-        self.plot_table = QTableWidget(self.plot_frame)
+        self.plot_table = QTableWidget(self.output_frame)
         self.plot_table.setColumnCount(2)
         self.plot_table.horizontalHeader().setStretchLastSection(True)
         self.plot_table.setHorizontalHeaderLabels(["X","Y"])
         self.plot_table_delegate = ReadOnlyDelegate(self.plot_table)
         self.plot_table.setItemDelegateForColumn(0, self.plot_table_delegate)
         self.plot_table.setItemDelegateForColumn(1, self.plot_table_delegate)
+        self.output_layout.addWidget(self.plot_table)
 
-        self.plot_tree = QTreeWidget(self.plot_frame)
+        self.plot_tree = QTreeWidget(self.output_frame)
         self.plot_tree.setColumnCount(1)
         self.plot_tree.setHeaderLabel("No shapes found - At least 3 points are needed!")
         self.plot_tree.currentItemChanged.connect(self.click_points_item)
+        self.output_layout.addWidget(self.plot_tree)
 
-        self.plot_layout.addWidget(self.plot_table)
-        self.plot_layout.addWidget(self.plot_tree)
+        self.main_layout.addWidget(self.output_frame)
+
+        self.plot_frame = QFrame(self)
+        self.plot_layout = QVBoxLayout(self.plot_frame)
+
+        self.create_plot()
+
+        self.plot_canvas = FigureCanvas(self.fig)
+        self.plot_layout.addWidget(self.plot_canvas)
+
         self.main_layout.addWidget(self.plot_frame)
     
     def get_point(self):
@@ -132,13 +147,13 @@ class UI(QWidget):
         self.x_spinbox.setValue(0)
         self.y_spinbox.setValue(0)
         self.random_spinbox.setValue(1)
-
+    
     def create_plot(self):
         self.fig, self.axes = plt.subplots()
         self.set_axes()
         self.fig.canvas.mpl_connect("button_press_event", self.click_plot)
         plt.gca().set_aspect("equal", adjustable = "box")
-    
+
     def set_axes(self):
         self.axes.set_title("Left click to add or remove a point")
         self.axes.set_xlim(-16, 16)
@@ -232,15 +247,13 @@ class UI(QWidget):
 
 
     def update_plot(self):
-        if not plt.fignum_exists(1):
-            self.create_plot()
         plt.cla()
         self.set_axes()
 
         for p in point_list:
             self.axes.plot(p[0], p[1], marker = "o", markersize = 3, color = "blue")
-        
-        plt.show()
+
+        self.plot_canvas.draw_idle()
 
     def click_plot(self, event):
         try:
@@ -310,7 +323,7 @@ class UI(QWidget):
         if id == "few_points":
             self.plot_tree.setHeaderLabel("No shapes found - At least 3 points are needed!")
         elif id == "outdated":
-            self.plot_tree.setHeaderLabel("Outdated - Press Find Shapes to update!")
+            self.plot_tree.setHeaderLabel("Outdated - Press \"Find Shapes\" to update!")
         elif id == "no_shapes":
             self.plot_tree.setHeaderLabel("No shapes found - Try adding more points!")
         elif id == "found_shapes":
