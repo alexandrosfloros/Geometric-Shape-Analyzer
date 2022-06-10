@@ -123,7 +123,8 @@ def get_shapes(vectors):
                     
                     if np.dot(vector1, vector2) == 0:
                         add_shape(triangle, right_triangle_list)
-            elif np.linalg.det([vector1, vector3]) != 0:
+            
+            elif abs(np.linalg.det([vector1, vector3])) > 0.001:
                 quadrilateral = Quadrilateral(point1, point2, point3, point4)
 
                 if np.array_equal(vector1, vector2) or np.array_equal(vector1, -1 * vector2):
