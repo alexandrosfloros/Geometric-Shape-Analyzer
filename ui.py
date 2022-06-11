@@ -8,6 +8,7 @@ from random import randrange
 
 class UI(QWidget):
     def __init__(self):
+        self.point_limit = 50
         self.tree_updated = True
 
         super().__init__()
@@ -83,7 +84,7 @@ class UI(QWidget):
 
         self.plot_tree = QTreeWidget(self.output_frame)
         self.plot_tree.setColumnCount(1)
-        self.plot_tree.setHeaderLabel("No shapes found - At least 3 points are needed!")
+        self.plot_tree.setHeaderLabel("No shapes found - At least 3 points are required!")
         self.plot_tree.currentItemChanged.connect(self.click_points_item)
         self.output_layout.addWidget(self.plot_tree)
 
@@ -139,7 +140,10 @@ class UI(QWidget):
         y = randrange(-16, 17)
         point = np.array([x, y])
         if any(np.array_equal(p, point) for p in point_list):
-            self.add_random()
+            try:
+                self.add_random()
+            except:
+                pass
         else:
             point_list.append(point)
 
@@ -167,6 +171,8 @@ class UI(QWidget):
         self.tree_updated = False
         if len(point_list) < 3:
             self.plot_tree_message("few_points")
+        elif len(point_list) > self.point_limit:
+            self.plot_tree_message("many_points")
         else:
             self.plot_tree_message("outdated")
 
@@ -317,17 +323,20 @@ class UI(QWidget):
             pass
 
     def calculate(self):
-        if not self.tree_updated:
-            if len(point_list) > 2:
-                self.tree_updated = True
-                shapes = calculate(point_list)
-                self.update_tree(shapes)
-            else:
-                self.plot_tree_message("few_points")
+        if len(point_list) <= self.point_limit:
+            if not self.tree_updated:
+                if len(point_list) > 2:
+                    self.tree_updated = True
+                    shapes = calculate(point_list)
+                    self.update_tree(shapes)
+                else:
+                    self.plot_tree_message("few_points")
 
     def plot_tree_message(self, id):
         if id == "few_points":
-            self.plot_tree.setHeaderLabel("No shapes found - At least 3 points are needed!")
+            self.plot_tree.setHeaderLabel("No shapes found - At least 3 points are required!")
+        elif id == "many_points":
+            self.plot_tree.setHeaderLabel(f"Too many points - At most {self.point_limit} points are required!")
         elif id == "outdated":
             self.plot_tree.setHeaderLabel("Outdated - Press \"Find Shapes\" to update!")
         elif id == "no_shapes":
