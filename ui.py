@@ -146,8 +146,6 @@ class UI(QWidget):
     def clear_points(self):
         point_list.clear()
         self.update_points()
-        self.x_spinbox.setValue(0)
-        self.y_spinbox.setValue(0)
         self.random_spinbox.setValue(1)
     
     def create_plot(self):
@@ -171,6 +169,14 @@ class UI(QWidget):
             self.plot_tree_message("few_points")
         else:
             self.plot_tree_message("outdated")
+
+        if len(point_list) == 0:
+            self.x_spinbox.setValue(0)
+            self.y_spinbox.setValue(0)
+        else:
+            self.x_spinbox.setValue(point_list[-1][0])
+            self.y_spinbox.setValue(point_list[-1][1])
+
         self.plot_tree.clear()
         self.update_table()
         self.update_plot()
@@ -265,8 +271,6 @@ class UI(QWidget):
                 self.remove_point(point)
             else:
                 self.add_point(point)
-            self.x_spinbox.setValue(x)
-            self.y_spinbox.setValue(y)
         except:
             pass
 
