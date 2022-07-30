@@ -1,7 +1,3 @@
-# Overview
-
-This is an application used to identify a variety of geometric shapes with different properties, given a set of points on the plane.
-
 # Motivation
 
 This project was originally made with the intention of challenging myself by attempting to solve a problem that, while easy to understand by one's intuition, it would require a lot of thought and effort to interpret using a computer algorithm. I came up with the idea of analysing points to obtain geometric shapes as a result of my interest surrounding such problems as well as the mathematical theory behind them. The project started out as a script with very basic features but, after a few revisions, it was expanded to a user-friendly GUI application with multiple functionalities, accepting a variety of user inputs.
