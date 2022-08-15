@@ -39,4 +39,4 @@ Points can be added by inserting their co-ordinates manually and clicking on the
 
 ## Generating Shapes
 
-Once at least three points have been added, the "Find Shapes" button can be clicked to generate a list of all the shapes identified on the plane, if any. By clicking on any shape type on the list, the vertex co-ordinates of each shape are shown, which, when selected, are highlighted on the plot. For cyclic quadrilaterals, the circumcentre and circumcircle also become visible. Whenever new points are added or removed, the shape list is reset and the user is asked to update it by clicking on the "Find Shapes" button again.
+Once at least three points have been added, the "Find Shapes" button can be clicked to generate a list of all the shapes identified on the plane. By clicking on any shape type on the list, the vertex co-ordinates of each shape are shown, which, when selected, are highlighted on the plot. For cyclic quadrilaterals, the circumcentre and circumcircle also become visible. Whenever new points are added or removed, the shape list is reset and the user is asked to update it by clicking on the "Find Shapes" button again.
