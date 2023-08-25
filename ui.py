@@ -6,6 +6,7 @@ from PyQt6.QtWidgets import *
 from geometry import *
 from random import randrange
 
+
 class UI(QWidget):
     def __init__(self):
         self.point_limit = 50
@@ -76,7 +77,7 @@ class UI(QWidget):
         self.plot_table = QTableWidget(self.output_frame)
         self.plot_table.setColumnCount(2)
         self.plot_table.horizontalHeader().setStretchLastSection(True)
-        self.plot_table.setHorizontalHeaderLabels(["X","Y"])
+        self.plot_table.setHorizontalHeaderLabels(["X", "Y"])
         self.plot_table_delegate = ReadOnlyDelegate(self.plot_table)
         self.plot_table.setItemDelegateForColumn(0, self.plot_table_delegate)
         self.plot_table.setItemDelegateForColumn(1, self.plot_table_delegate)
@@ -84,7 +85,9 @@ class UI(QWidget):
 
         self.plot_tree = QTreeWidget(self.output_frame)
         self.plot_tree.setColumnCount(1)
-        self.plot_tree.setHeaderLabel("No shapes found - At least 3 points are required!")
+        self.plot_tree.setHeaderLabel(
+            "No shapes found - At least 3 points are required!"
+        )
         self.plot_tree.currentItemChanged.connect(self.click_points_item)
         self.output_layout.addWidget(self.plot_tree)
 
@@ -101,7 +104,7 @@ class UI(QWidget):
         self.plot_layout.addWidget(self.plot_canvas)
 
         self.main_layout.addWidget(self.plot_frame)
-    
+
     def get_point(self):
         point = np.array([self.x_spinbox.value(), self.y_spinbox.value()])
         return point
@@ -110,25 +113,25 @@ class UI(QWidget):
         point = self.get_point()
         if not any(np.array_equal(p, point) for p in point_list):
             self.add_point(point)
-    
+
     def spinbox_remove_point(self):
         point = self.get_point()
         if any(np.array_equal(p, point) for p in point_list):
             self.remove_point(point)
 
     def add_point(self, point):
-            point_list.append(point)
-            self.update_points()
+        point_list.append(point)
+        self.update_points()
 
     def remove_point(self, point):
         global point_list
         new_point_list = []
         for p in point_list:
-            if not np.array_equal(p, point):  
+            if not np.array_equal(p, point):
                 new_point_list.append(p)
         point_list = new_point_list.copy()
         self.update_points()
-    
+
     def random_points(self):
         point_num = self.random_spinbox.value()
         for i in range(point_num):
@@ -151,22 +154,22 @@ class UI(QWidget):
         point_list.clear()
         self.update_points()
         self.random_spinbox.setValue(1)
-    
+
     def create_plot(self):
         self.fig, self.axes = plt.subplots()
         self.set_axes()
         self.fig.canvas.mpl_connect("button_press_event", self.click_plot)
-        plt.gca().set_aspect("equal", adjustable = "box")
+        plt.gca().set_aspect("equal", adjustable="box")
 
     def set_axes(self):
         self.axes.set_title("Click to add or remove a point")
         self.axes.set_xlim(-16, 16)
         self.axes.set_ylim(-16, 16)
-        self.axes.set_xticks(np.arange(-16, 17), minor = True)
-        self.axes.set_yticks(np.arange(-16, 17), minor = True)
-        self.axes.grid(which= "major", alpha = 0.6)
-        self.axes.grid(which= "minor", alpha = 0.3)
-    
+        self.axes.set_xticks(np.arange(-16, 17), minor=True)
+        self.axes.set_yticks(np.arange(-16, 17), minor=True)
+        self.axes.grid(which="major", alpha=0.6)
+        self.axes.grid(which="minor", alpha=0.3)
+
     def update_points(self):
         self.tree_updated = False
         if len(point_list) < 3:
@@ -217,17 +220,23 @@ class UI(QWidget):
             shape_item.addChildren(points_items)
             self.plot_tree.addTopLevelItem(shape_item)
         if shapes.isosceles_trapezia:
-            shape_item = self.get_shape_item(shapes.isosceles_trapezia, "isosceles_trapezia")
+            shape_item = self.get_shape_item(
+                shapes.isosceles_trapezia, "isosceles_trapezia"
+            )
             points_items = self.get_points_items(shapes.isosceles_trapezia)
             shape_item.addChildren(points_items)
             self.plot_tree.addTopLevelItem(shape_item)
         if shapes.cyclic_quadrilaterals:
-            shape_item = self.get_shape_item(shapes.cyclic_quadrilaterals, "cyclic_quadrilaterals")
+            shape_item = self.get_shape_item(
+                shapes.cyclic_quadrilaterals, "cyclic_quadrilaterals"
+            )
             points_items = self.get_points_items(shapes.cyclic_quadrilaterals)
             shape_item.addChildren(points_items)
             self.plot_tree.addTopLevelItem(shape_item)
         if shapes.isosceles_triangles:
-            shape_item = self.get_shape_item(shapes.isosceles_triangles, "isosceles_triangles")
+            shape_item = self.get_shape_item(
+                shapes.isosceles_triangles, "isosceles_triangles"
+            )
             points_items = self.get_points_items(shapes.isosceles_triangles)
             shape_item.addChildren(points_items)
             self.plot_tree.addTopLevelItem(shape_item)
@@ -236,36 +245,42 @@ class UI(QWidget):
             points_items = self.get_points_items(shapes.right_triangles)
             shape_item.addChildren(points_items)
             self.plot_tree.addTopLevelItem(shape_item)
-        
-        if len(shapes.parallelograms) == 0 and len(shapes.cyclic_quadrilaterals) == 0 and len(shapes.isosceles_triangles) == 0 and len(shapes.right_triangles) == 0:
+
+        if (
+            len(shapes.parallelograms) == 0
+            and len(shapes.cyclic_quadrilaterals) == 0
+            and len(shapes.isosceles_triangles) == 0
+            and len(shapes.right_triangles) == 0
+        ):
             self.plot_tree_message("no_shapes")
             return
 
         self.plot_tree_message("found_shapes")
-    
+
     def get_shape_item(self, shape, name):
         item = QTreeWidgetItem(self.plot_tree)
         text = name + f"({len(shape)})"
         item.setText(0, text)
         return item
-    
+
     def get_points_items(self, shape):
         items = []
         if isinstance(shape[0], Quadrilateral):
             for s in shape:
-                items.append(QTreeWidgetItem([f"{s.point1}, {s.point2}, {s.point3}, {s.point4}"]))
+                items.append(
+                    QTreeWidgetItem([f"{s.point1}, {s.point2}, {s.point3}, {s.point4}"])
+                )
         else:
             for s in shape:
                 items.append(QTreeWidgetItem([f"{s.point1}, {s.point2}, {s.point3}"]))
         return items
-
 
     def update_plot(self):
         plt.cla()
         self.set_axes()
 
         for p in point_list:
-            self.axes.plot(p[0], p[1], marker = "o", markersize = 3, color = "blue")
+            self.axes.plot(p[0], p[1], marker="o", markersize=3, color="blue")
 
         self.plot_canvas.draw_idle()
 
@@ -299,26 +314,44 @@ class UI(QWidget):
                 x3 = points[2][0]
                 y3 = points[2][1]
 
-                self.axes.plot([x1, x2], [y1, y2], marker = "o", markersize = 3, color = "red")
-                self.axes.plot([x2, x3], [y2, y3], marker = "o", markersize = 3, color = "red")
-                
+                self.axes.plot(
+                    [x1, x2], [y1, y2], marker="o", markersize=3, color="red"
+                )
+                self.axes.plot(
+                    [x2, x3], [y2, y3], marker="o", markersize=3, color="red"
+                )
+
                 if len(points) == 3:
-                    self.axes.plot([x3, x1], [y3, y1], marker = "o", markersize = 3, color = "red")
+                    self.axes.plot(
+                        [x3, x1], [y3, y1], marker="o", markersize=3, color="red"
+                    )
                 else:
                     x4 = points[3][0]
                     y4 = points[3][1]
 
-                    self.axes.plot([x3, x4], [y3, y4], marker = "o", markersize = 3, color = "red")
-                    self.axes.plot([x4, x1], [y4, y1], marker = "o", markersize = 3, color = "red")
-                    
+                    self.axes.plot(
+                        [x3, x4], [y3, y4], marker="o", markersize=3, color="red"
+                    )
+                    self.axes.plot(
+                        [x4, x1], [y4, y1], marker="o", markersize=3, color="red"
+                    )
+
                     if "cyclic_quadrilaterals" in item.parent().text(0):
                         d = 2 * (x1 * (y2 - y3) + x2 * (y3 - y1) + x3 * (y1 - y2))
-                        xc = ((x1 ** 2 + y1 ** 2) * (y2 - y3) + (x2 ** 2 + y2 ** 2) * (y3 - y1) + (x3 ** 2 + y3 ** 2) * (y1 - y2)) / d
-                        yc = ((x1 ** 2 + y1 ** 2) * (x3 - x2) + (x2 ** 2 + y2 ** 2) * (x1 - x3) + (x3 ** 2 + y3 ** 2) * (x2 - x1)) / d
+                        xc = (
+                            (x1**2 + y1**2) * (y2 - y3)
+                            + (x2**2 + y2**2) * (y3 - y1)
+                            + (x3**2 + y3**2) * (y1 - y2)
+                        ) / d
+                        yc = (
+                            (x1**2 + y1**2) * (x3 - x2)
+                            + (x2**2 + y2**2) * (x1 - x3)
+                            + (x3**2 + y3**2) * (x2 - x1)
+                        ) / d
                         radius = np.linalg.norm(np.array([xc - x1, yc - y1]))
-                        circle = plt.Circle((xc, yc), radius, color = "green", fill = False)
+                        circle = plt.Circle((xc, yc), radius, color="green", fill=False)
                         self.axes.add_patch(circle)
-                        self.axes.plot(xc, yc, marker = "o", markersize = 3, color = "green")
+                        self.axes.plot(xc, yc, marker="o", markersize=3, color="green")
         except:
             pass
 
@@ -334,15 +367,20 @@ class UI(QWidget):
 
     def plot_tree_message(self, id):
         if id == "few_points":
-            self.plot_tree.setHeaderLabel("No shapes found - At least 3 points are required!")
+            self.plot_tree.setHeaderLabel(
+                "No shapes found - At least 3 points are required!"
+            )
         elif id == "many_points":
-            self.plot_tree.setHeaderLabel(f"Too many points - At most {self.point_limit} points are required!")
+            self.plot_tree.setHeaderLabel(
+                f"Too many points - At most {self.point_limit} points are required!"
+            )
         elif id == "outdated":
-            self.plot_tree.setHeaderLabel("Outdated - Press \"Find Shapes\" to update!")
+            self.plot_tree.setHeaderLabel('Outdated - Press "Find Shapes" to update!')
         elif id == "no_shapes":
             self.plot_tree.setHeaderLabel("No shapes found - Try adding more points!")
         elif id == "found_shapes":
             self.plot_tree.setHeaderLabel("Shapes:")
+
 
 class ReadOnlyDelegate(QStyledItemDelegate):
     def createEditor(self, parent, option, index):
