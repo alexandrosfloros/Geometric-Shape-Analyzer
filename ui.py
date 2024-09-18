@@ -13,7 +13,7 @@ class UI(QWidget):
         self.tree_updated = True
 
         super().__init__()
-        self.setWindowTitle("Geometric Shape Analyser")
+        self.setWindowTitle("Geometric Shape Analyzer")
         self.setGeometry(0, 0, 640, 785)
 
         self.main_layout = QVBoxLayout(self)
@@ -107,15 +107,18 @@ class UI(QWidget):
 
     def get_point(self):
         point = np.array([self.x_spinbox.value(), self.y_spinbox.value()])
+
         return point
 
     def spinbox_add_point(self):
         point = self.get_point()
+
         if not any(np.array_equal(p, point) for p in point_list):
             self.add_point(point)
 
     def spinbox_remove_point(self):
         point = self.get_point()
+
         if any(np.array_equal(p, point) for p in point_list):
             self.remove_point(point)
 
@@ -126,27 +129,34 @@ class UI(QWidget):
     def remove_point(self, point):
         global point_list
         new_point_list = []
+
         for p in point_list:
             if not np.array_equal(p, point):
                 new_point_list.append(p)
+
         point_list = new_point_list.copy()
         self.update_points()
 
     def random_points(self):
         point_num = self.random_spinbox.value()
+
         for i in range(point_num):
             self.add_random()
+
         self.update_points()
 
     def add_random(self):
         x = randrange(-16, 17)
         y = randrange(-16, 17)
         point = np.array([x, y])
+
         if any(np.array_equal(p, point) for p in point_list):
             try:
                 self.add_random()
+
             except:
                 pass
+
         else:
             point_list.append(point)
 
@@ -172,16 +182,20 @@ class UI(QWidget):
 
     def update_points(self):
         self.tree_updated = False
+
         if len(point_list) < 3:
             self.plot_tree_message("few_points")
+
         elif len(point_list) > self.point_limit:
             self.plot_tree_message("many_points")
+
         else:
             self.plot_tree_message("outdated")
 
         if len(point_list) == 0:
             self.x_spinbox.setValue(0)
             self.y_spinbox.setValue(0)
+
         else:
             self.x_spinbox.setValue(point_list[-1][0])
             self.y_spinbox.setValue(point_list[-1][1])
@@ -199,33 +213,39 @@ class UI(QWidget):
 
     def update_tree(self, shapes):
         self.plot_tree.clear()
+
         if shapes.parallelograms:
             shape_item = self.get_shape_item(shapes.parallelograms, "parallelograms")
             points_items = self.get_points_items(shapes.parallelograms)
             shape_item.addChildren(points_items)
             self.plot_tree.addTopLevelItem(shape_item)
+
         if shapes.rectangles:
             shape_item = self.get_shape_item(shapes.rectangles, "rectangles")
             points_items = self.get_points_items(shapes.rectangles)
             shape_item.addChildren(points_items)
             self.plot_tree.addTopLevelItem(shape_item)
+
         if shapes.rhombi:
             shape_item = self.get_shape_item(shapes.rhombi, "rhombi")
             points_items = self.get_points_items(shapes.rhombi)
             shape_item.addChildren(points_items)
             self.plot_tree.addTopLevelItem(shape_item)
+
         if shapes.squares:
             shape_item = self.get_shape_item(shapes.squares, "squares")
             points_items = self.get_points_items(shapes.squares)
             shape_item.addChildren(points_items)
             self.plot_tree.addTopLevelItem(shape_item)
-        if shapes.isosceles_trapezia:
+
+        if shapes.isosceles_trapezoids:
             shape_item = self.get_shape_item(
-                shapes.isosceles_trapezia, "isosceles_trapezia"
+                shapes.isosceles_trapezoids, "isosceles_trapezoids"
             )
-            points_items = self.get_points_items(shapes.isosceles_trapezia)
+            points_items = self.get_points_items(shapes.isosceles_trapezoids)
             shape_item.addChildren(points_items)
             self.plot_tree.addTopLevelItem(shape_item)
+
         if shapes.cyclic_quadrilaterals:
             shape_item = self.get_shape_item(
                 shapes.cyclic_quadrilaterals, "cyclic_quadrilaterals"
@@ -233,6 +253,7 @@ class UI(QWidget):
             points_items = self.get_points_items(shapes.cyclic_quadrilaterals)
             shape_item.addChildren(points_items)
             self.plot_tree.addTopLevelItem(shape_item)
+
         if shapes.isosceles_triangles:
             shape_item = self.get_shape_item(
                 shapes.isosceles_triangles, "isosceles_triangles"
@@ -240,6 +261,7 @@ class UI(QWidget):
             points_items = self.get_points_items(shapes.isosceles_triangles)
             shape_item.addChildren(points_items)
             self.plot_tree.addTopLevelItem(shape_item)
+
         if shapes.right_triangles:
             shape_item = self.get_shape_item(shapes.right_triangles, "right_triangles")
             points_items = self.get_points_items(shapes.right_triangles)
@@ -253,6 +275,7 @@ class UI(QWidget):
             and len(shapes.right_triangles) == 0
         ):
             self.plot_tree_message("no_shapes")
+
             return
 
         self.plot_tree_message("found_shapes")
@@ -261,18 +284,22 @@ class UI(QWidget):
         item = QTreeWidgetItem(self.plot_tree)
         text = name + f"({len(shape)})"
         item.setText(0, text)
+
         return item
 
     def get_points_items(self, shape):
         items = []
+
         if isinstance(shape[0], Quadrilateral):
             for s in shape:
                 items.append(
                     QTreeWidgetItem([f"{s.point1}, {s.point2}, {s.point3}, {s.point4}"])
                 )
+
         else:
             for s in shape:
                 items.append(QTreeWidgetItem([f"{s.point1}, {s.point2}, {s.point3}"]))
+
         return items
 
     def update_plot(self):
@@ -288,17 +315,22 @@ class UI(QWidget):
         try:
             x, y = int(round(event.xdata)), int(round(event.ydata))
             point = np.array([x, y])
+
             if any(np.array_equal(p, point) for p in point_list):
                 self.remove_point(point)
+
             else:
                 self.add_point(point)
+
         except:
             pass
 
     def click_points_item(self, item):
         self.update_plot()
+
         try:
             text = item.text(0)
+
             if " " in text:
                 points = text.split(", ")
 
@@ -325,6 +357,7 @@ class UI(QWidget):
                     self.axes.plot(
                         [x3, x1], [y3, y1], marker="o", markersize=3, color="red"
                     )
+
                 else:
                     x4 = points[3][0]
                     y4 = points[3][1]
@@ -352,6 +385,7 @@ class UI(QWidget):
                         circle = plt.Circle((xc, yc), radius, color="green", fill=False)
                         self.axes.add_patch(circle)
                         self.axes.plot(xc, yc, marker="o", markersize=3, color="green")
+
         except:
             pass
 
@@ -362,6 +396,7 @@ class UI(QWidget):
                     self.tree_updated = True
                     shapes = calculate(point_list)
                     self.update_tree(shapes)
+
                 else:
                     self.plot_tree_message("few_points")
 
@@ -370,14 +405,18 @@ class UI(QWidget):
             self.plot_tree.setHeaderLabel(
                 "No shapes found - At least 3 points are required!"
             )
+
         elif id == "many_points":
             self.plot_tree.setHeaderLabel(
                 f"Too many points - At most {self.point_limit} points are required!"
             )
+
         elif id == "outdated":
             self.plot_tree.setHeaderLabel('Outdated - Press "Find Shapes" to update!')
+
         elif id == "no_shapes":
             self.plot_tree.setHeaderLabel("No shapes found - Try adding more points!")
+
         elif id == "found_shapes":
             self.plot_tree.setHeaderLabel("Shapes:")
 
